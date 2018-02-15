@@ -1,0 +1,35 @@
+public SocialTokenResponse validateSocialAccessToken(String accessToken, String email){
+		if (StringUtils.isBlank(accessToken)) {
+			List<ErrorContainer> errors = new ArrayList<ErrorContainer>();
+			ErrorContainer error = new ErrorContainer(ErrorCodes.EMPTY_SOCIAL_ACCESS_TOKEN);
+			errors.add(error);
+			throw new InvalidSocialAccessTokenException(errors);
+		}
+
+		UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(graphUrl).path("/")
+				.queryParam("access_token", accessToken).queryParam("fields", "id,email,first_name,last_name");
+		String url = builder.build().encode().toString();
+
+		String response = restClient.setUrl(url).get();
+
+		if (response == null || response.isEmpty()) {
+			List<ErrorContainer> errors = new ArrayList<ErrorContainer>();
+			ErrorContainer error = new ErrorContainer(ErrorCodes.INVALID_SOCIAL_ACCESS_TOKEN);
+			errors.add(error);
+			throw new InvalidSocialAccessTokenException(errors);
+		}
+
+		SocialTokenResponse socialTokenResponse = (SocialTokenResponse) jsonUtils.convertJsonIntoClass(response,
+				SocialTokenResponse.class);
+		
+		if(socialTokenResponse.getEmail()== null || socialTokenResponse.getEmail().isEmpty()) {
+			List<ErrorContainer> errors = new ArrayList<ErrorContainer>();
+			ErrorContainer error = new ErrorContainer(
+											ErrorCodes.ERROR_FETCHING_EMAIL_FOR_REQUESTED_ACCESS_TOKEN);
+			errors.add(error);
+			throw new InvalidSocialAccessTokenException(errors);
+		}
+		
+
+		return socialTokenResponse;
+	}
