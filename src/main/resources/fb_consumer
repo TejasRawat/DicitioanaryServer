@@ -33,3 +33,14 @@ public SocialTokenResponse validateSocialAccessToken(String accessToken, String 
 
 		return socialTokenResponse;
 	}
+	
+	
+	
+		@Autowired
+		private Class class;
+		
+		@Configuration
+		@ConfigurationProperties(prefix = "test")
+		public class class {
+	
+	
